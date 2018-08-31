@@ -1,0 +1,55 @@
+#!/bin/bash
+# full_adsdb
+
+# Stop on errors
+set -e
+#set -x
+
+DB_FILENAME=var/full_ads.sqlite3
+
+# Sanity check command line options
+usage() {
+	echo "Usage: $0 (create|destroy|reset|dump)"
+}
+
+if [ $# -ne 1 ]; then
+	usage
+	exit 1
+fi
+
+# Parse argument.  $1 is the first argument
+case $1 in
+	"create")
+	if [ -f "var/full_ads.sqlite3" ]; then
+		echo 'Error: database already exists'
+		exit 1
+	fi
+		sqlite3 var/full_ads.sqlite3 < sql/schema.sql
+		echo '+ sqlite3 var/full_ads.sqlite3 < sql/schema.sql'
+		sqlite3 var/full_ads.sqlite3 < sql/data.sql
+		echo '+ sqlite3 var/full_ads.sqlite3 < sql/data.sql'
+		;;
+
+	"destroy")
+		rm -rf var/full_adsT.sqlite3
+		echo '+ rm -rf var/full_ads.sqlite3'
+		;;
+
+	"reset")
+		rm -rf var/full_ads.sqlite3
+		echo '+ rm -rf var/full_ads.sqlite3'
+		sqlite3 var/full_ads.sqlite3 < sql/schema.sql
+		echo '+ sqlite3 var/full_ads.sqlite3 < sql/schema.sql'
+		sqlite3 var/full_ads.sqlite3 < sql/data.sql
+		echo '+ sqlite3 var/full_ads.sqlite3 < sql/data.sql'
+		;;
+
+	"dump")
+		#sqlite3 -batch -line var/$PROJECT_ROOT.sqlite3 'SELECT * FROM comments'
+		;;
+	*)
+		usage
+		exit 1
+		;;
+esac
+
